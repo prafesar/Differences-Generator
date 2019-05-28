@@ -1,0 +1,45 @@
+{
+  "name": "gendiff",
+  "version": "1.0.0",
+  "description": "generat diffrence for JSON files",
+  "dependencies": {
+    "commander": "^2.20.0"
+  },
+  "bin": {
+    "gendiff": "dist/bin/gendiff.js"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.5",
+    "@babel/node": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-babel": "^5.3.0",
+    "eslint-plugin-import": "^2.17.2"
+  },
+  "scripts": {
+    "test": "test",
+    "build": "NODE_ENV=production babel src --out-dir dist --source-maps inline",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prafesar/project-lvl2-s487.git"
+  },
+  "keywords": [
+    "hexlet",
+    "javascript",
+    "study"
+  ],
+  "author": "prafesar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/prafesar/project-lvl2-s487/issues"
+  },
+  "homepage": "https://github.com/prafesar/project-lvl2-s487#readme"
+}
