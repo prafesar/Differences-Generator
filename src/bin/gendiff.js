@@ -3,17 +3,12 @@ import program from 'commander';
 import { version } from '../../package.json';
 
 program
-  .version(version)
-  .option('-h, --help', 'output usage information')
-  .option('-V, --version', 'output the version number')
-  .option('-f, --format [type]', 'output format');
-
-program
+  .description('Compares two configuration files and shows a difference')
   .arguments('<firstConfig> <secondConfig>')
-  .description('Compares two configuration files and shows a difference');
+  .option('-f, --format [type]', 'output format')
+  .option('-V, --version', 'output the version number')
+  .version(version);
 
 program.parse(process.argv);
 
-program.help();
-
-console.log('hi');
+console.log('app is running');
