@@ -1,14 +1,6 @@
 #!/usr/bin/env node
-import program from 'commander';
-import { version } from '../../package.json';
+import commandLine from '../gendiff';
 
-program
-  .description('Compares two configuration files and shows a difference')
-  .arguments('<firstConfig> <secondConfig>')
-  .option('-f, --format [type]', 'output format')
-  .option('-V, --version', 'output the version number')
-  .version(version);
-
-program.parse(process.argv);
+commandLine.parse(process.argv);
 
 console.log('app is running');

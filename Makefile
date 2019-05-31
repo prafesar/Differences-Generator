@@ -1,3 +1,4 @@
+build: publish install
 install:
 	npm link
 start:
