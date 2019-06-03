@@ -11,7 +11,7 @@ export default program
   .version(version);
 
 const getDateFromJSONfile = (filePath) => {
-  const fileDate = fs.readFileSync(path.resolve(__dirname, filePath));
+  const fileDate = fs.readFileSync(path.resolve(__dirname, filePath), 'utf-8');
   return JSON.parse(fileDate);
 };
 
@@ -28,21 +28,26 @@ export const getDiff = (beforeFilelePath, afterFilePath) => {
   const beforeKeys = Object.keys(beforeDate);
   const afterKeys = Object.keys(afterDate);
   const allKeys = new Set(beforeKeys.concat(afterKeys));
-
-  const result = allKeys.reduce((res, key) => {
+  const result = [];
+  allKeys.forEach((key) => {
     const beforeValue = beforeDate[key];
     const afterValue = afterDate[key];
-    let newRes = [];
-    if (beforeValue && afterValue) {
-      newRes = beforeValue === afterValue ? [...res, `  ${key}: ${beforeValue}`]
-        : [...res, `- ${key}: ${beforeValue}`, `+ ${key}: ${afterValue}`];
-    } else if (beforeValue) {
-      newRes = [...res, `- ${key}: ${beforeValue}`];
-    } else if (afterValue) {
-      newRes = [...res, `+ ${key}: ${afterValue}`];
+    if (beforeValue) {
+      if (afterValue) { // not changed
+        if (beforeValue === afterValue) {
+          result.push(`  ${key}: ${beforeValue}`);
+        } else { // changed
+          result.push(`- ${key}: ${beforeValue}`);
+          result.push(`+ ${key}: ${afterValue}`);
+        }
+      } else { // delete
+        result.push(`- ${key}: ${beforeValue}`);
+      }
+    } else {
+      if (afterValue) {
+        result.push(`+ ${key}: ${afterValue}`)
+      }
     }
-    return newRes;
-  },
-  []);
+  });
   printDiff(result);
 };
