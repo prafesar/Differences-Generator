@@ -1,7 +1,7 @@
-import getDiff from '../src';
+import { getDiff } from '../src';
 
-test('Generate diffrence', () => {
+test('generate diff', () => {
   const beforeFilePath = '../date/before.json';
   const afterFilePath = '../date/after.json';
-  expect(getDiff(beforeFilePath, afterFilePath)).toBe(2)
-})
+  expect(getDiff(beforeFilePath, afterFilePath)).toBe(2);
+});
