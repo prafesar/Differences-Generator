@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import commandLine from '../gendiff';
+import commandLine from '..';
 
 commandLine.parse(process.argv);
 
