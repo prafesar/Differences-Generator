@@ -1,6 +1,8 @@
 #!/usr/bin/env node
-import commandLine from '..';
+import commandLine, { getDiff } from '..';
 
 commandLine.parse(process.argv);
 
-console.log('app is running');
+console.log(process.argv.slice(2));
+
+// getDiff(beforeFilePath, afterFilePath);
