@@ -1,5 +1,6 @@
 import program from 'commander';
 import fs from 'fs';
+import path from 'path';
 import { version } from '../package.json';
 
 export default program
@@ -10,7 +11,7 @@ export default program
   .version(version);
 
 const getDateFromJSONfile = (filePath) => {
-  const fileDate = fs.readFileSync(filePath);
+  const fileDate = fs.readFileSync(path.resolve(__dirname, filePath));
   return JSON.parse(fileDate);
 };
 
