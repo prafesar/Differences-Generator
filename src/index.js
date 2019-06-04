@@ -15,12 +15,6 @@ const getDateFromJSONfile = (filePath) => {
   return JSON.parse(fileDate);
 };
 
-const printDiff = (arrayDiff) => {
-  console.log('{');
-  arrayDiff.forEach(elem => console.log(`  ${elem}`));
-  console.log('}');
-};
-
 export const getDiff = (beforeFilelePath, afterFilePath) => {
   const beforeDate = getDateFromJSONfile(beforeFilelePath); // obj
   const afterDate = getDateFromJSONfile(afterFilePath); // obj
@@ -28,26 +22,27 @@ export const getDiff = (beforeFilelePath, afterFilePath) => {
   const beforeKeys = Object.keys(beforeDate);
   const afterKeys = Object.keys(afterDate);
   const allKeys = new Set(beforeKeys.concat(afterKeys));
-  const result = [];
+  const result = '{\n';
   allKeys.forEach((key) => {
     const beforeValue = beforeDate[key];
     const afterValue = afterDate[key];
     if (beforeValue) {
       if (afterValue) { // not changed
         if (beforeValue === afterValue) {
-          result.push(`  ${key}: ${beforeValue}`);
+          return `${result}    ${key}: ${beforeValue}\n`;
         } else { // changed
-          result.push(`- ${key}: ${beforeValue}`);
-          result.push(`+ ${key}: ${afterValue}`);
+          return `${result}  - ${key}: ${beforeValue}\n  + ${key}: ${afterValue}\n`;
         }
       } else { // delete
-        result.push(`- ${key}: ${beforeValue}`);
+        return `${result}  - ${key}: ${beforeValue}\n`;
       }
     } else {
       if (afterValue) {
-        result.push(`+ ${key}: ${afterValue}`)
+        return `${result}  + ${key}: ${afterValue}\n`;
       }
     }
   });
-  printDiff(result);
+  result = `${result}}\n`;
+  console.log(result);
+  return result;
 };
