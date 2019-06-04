@@ -10,39 +10,34 @@ export default program
   .option('-V, --version', 'output the version number')
   .version(version);
 
-const getDateFromJSONfile = (filePath) => {
-  const fileDate = fs.readFileSync(path.resolve(__dirname, filePath), 'utf-8');
-  return JSON.parse(fileDate);
-};
+export const readFile = filePath => fs.readFileSync(path.resolve(__dirname, filePath), 'utf-8');
 
 export const getDiff = (beforeFilelePath, afterFilePath) => {
-  const beforeDate = getDateFromJSONfile(beforeFilelePath); // obj
-  const afterDate = getDateFromJSONfile(afterFilePath); // obj
+  const beforeDate = JSON.parse(readFile(beforeFilelePath)); // obj
+  const afterDate = JSON.parse(readFile(afterFilePath)); // obj
 
   const beforeKeys = Object.keys(beforeDate);
   const afterKeys = Object.keys(afterDate);
   const allKeys = new Set(beforeKeys.concat(afterKeys));
-  const result = '{\n';
+
+  let result = '{\n';
   allKeys.forEach((key) => {
     const beforeValue = beforeDate[key];
     const afterValue = afterDate[key];
     if (beforeValue) {
       if (afterValue) { // not changed
         if (beforeValue === afterValue) {
-          return `${result}    ${key}: ${beforeValue}\n`;
+          result = `${result}    ${key}: ${beforeValue}\n`;
         } else { // changed
-          return `${result}  - ${key}: ${beforeValue}\n  + ${key}: ${afterValue}\n`;
+          result = `${result}  - ${key}: ${beforeValue}\n  + ${key}: ${afterValue}\n`;
         }
       } else { // delete
-        return `${result}  - ${key}: ${beforeValue}\n`;
+        result = `${result}  - ${key}: ${beforeValue}\n`;
       }
-    } else {
-      if (afterValue) {
-        return `${result}  + ${key}: ${afterValue}\n`;
-      }
+    } else if (afterValue) {
+      result = `${result}  + ${key}: ${afterValue}\n`;
     }
   });
-  result = `${result}}\n`;
-  console.log(result);
-  return result;
+
+  return `${result}}`;
 };
