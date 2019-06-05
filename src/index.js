@@ -13,7 +13,7 @@ export default program
       console.log(getDiff(firstConfig, secondConfig));
   });
 
-export const readFile = filePath => fs.readFileSync(path.resolve(__dirname, filePath), 'utf-8');
+export const readFile = filePath => fs.readFileSync(path.resolve(process.cwd(), filePath), 'utf-8');
 
 export const getDiff = (beforeFilelePath, afterFilePath) => {
   const beforeDate = JSON.parse(readFile(beforeFilelePath)); // obj
