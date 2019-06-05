@@ -1,10 +1,8 @@
-install: install-deps
-
 start:
 	npx babel-node 'src/bin/gendiff.js' 10
 
-install-deps:
-	npm install
+install:
+	npm link
 
 build:
 	rm -rf dist
