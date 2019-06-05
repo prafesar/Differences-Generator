@@ -8,7 +8,10 @@ export default program
   .arguments('<firstConfig> <secondConfig>')
   .option('-f, --format [type]', 'output format')
   .option('-V, --version', 'output the version number')
-  .version(version);
+  .version(version)
+  .action((firstConfig, secondConfig) => {
+      console.log(getDiff(firstConfig, secondConfig));
+  });
 
 export const readFile = filePath => fs.readFileSync(path.resolve(__dirname, filePath), 'utf-8');
 
