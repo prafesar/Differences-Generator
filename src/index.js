@@ -11,7 +11,6 @@ export default program
   .version(version)
   .action(function (firstConfig, secondConfig) {
       console.log(getDiff(firstConfig, secondConfig));
-      console.log(process.cwd());
   });
 
 export const readFile = filePath => fs.readFileSync(path.resolve(__dirname, filePath), 'utf-8');
