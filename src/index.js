@@ -9,25 +9,28 @@ export const getDiff = (beforeFilelePath, afterFilePath) => {
   const beforeKeys = Object.keys(beforeDate);
   const afterKeys = Object.keys(afterDate);
   const allKeys = new Set(beforeKeys.concat(afterKeys));
-
   let result = '{\n';
+
   allKeys.forEach((key) => {
     const beforeValue = beforeDate[key];
     const afterValue = afterDate[key];
-    if (beforeValue) {
-      if (afterValue) { // not changed
-        if (beforeValue === afterValue) {
-          result = `${result}    ${key}: ${beforeValue}\n`;
-        } else { // changed
-          result = `${result}  - ${key}: ${beforeValue}\n  + ${key}: ${afterValue}\n`;
-        }
-      } else { // delete
-        result = `${result}  - ${key}: ${beforeValue}\n`;
+    const existBefore = beforeKeys.includes(key);
+    const existAfter = afterKeys.includes(key);
+    if (existBefore && existAfter) {
+      if (beforeValue === afterValue) {
+        result = `${result}    ${key}: ${beforeValue}\n`;
+      } else {
+        result = `${result}  - ${key}: ${beforeValue}\n  + ${key}: ${afterValue}\n`;
       }
-    } else if (afterValue) {
+    }
+    if (!existBefore && existAfter) {
       result = `${result}  + ${key}: ${afterValue}\n`;
     }
+    if (existBefore && !existAfter) {
+      result = `${result}  - ${key}: ${beforeValue}\n`;
+    }
   });
+
   return `${result}}`;
 };
 
