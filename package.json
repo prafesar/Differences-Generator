@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "generat diffrence for JSON files",
   "dependencies": {
-    "commander": "^2.20.0"
+    "commander": "^2.20.0",
+    "js-yaml": "^3.13.1"
   },
   "bin": {
     "gendiff": "dist/bin/gendiff.js"

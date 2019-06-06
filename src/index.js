@@ -1,23 +1,10 @@
 import program from 'commander';
-import fs from 'fs';
-import path from 'path';
+import parseFile from './parsers';
 import { version } from '../package.json';
 
-export default program
-  .description('Compares two configuration files and shows a difference')
-  .arguments('<firstConfig> <secondConfig>')
-  .option('-f, --format [type]', 'output format')
-  .option('-V, --version', 'output the version number')
-  .version(version)
-  .action(function (firstConfig, secondConfig) {
-      console.log(getDiff(firstConfig, secondConfig));
-  });
-
-export const readFile = filePath => fs.readFileSync(path.resolve(process.cwd(), filePath), 'utf-8');
-
 export const getDiff = (beforeFilelePath, afterFilePath) => {
-  const beforeDate = JSON.parse(readFile(beforeFilelePath)); // obj
-  const afterDate = JSON.parse(readFile(afterFilePath)); // obj
+  const beforeDate = parseFile(beforeFilelePath); // obj
+  const afterDate = parseFile(afterFilePath); // obj
 
   const beforeKeys = Object.keys(beforeDate);
   const afterKeys = Object.keys(afterDate);
@@ -41,6 +28,15 @@ export const getDiff = (beforeFilelePath, afterFilePath) => {
       result = `${result}  + ${key}: ${afterValue}\n`;
     }
   });
-
   return `${result}}`;
 };
+
+export default program
+  .description('Compares two configuration files and shows a difference')
+  .arguments('<firstConfig> <secondConfig>')
+  .option('-f, --format [type]', 'output format')
+  .option('-V, --version', 'output the version number')
+  .version(version)
+  .action((firstConfig, secondConfig) => {
+    console.log(getDiff(firstConfig, secondConfig));
+  });
