@@ -4,6 +4,7 @@
   "description": "generat diffrence for JSON files",
   "dependencies": {
     "commander": "^2.20.0",
+    "ini": "^1.3.5",
     "js-yaml": "^3.13.1"
   },
   "bin": {
