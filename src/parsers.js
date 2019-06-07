@@ -5,8 +5,8 @@ import ini from 'ini';
 
 const getType = filePath => path.extname(filePath);
 
-export const getAbsolutePath = filePath => (path.isAbsolute(filePath) ? filePath
-  : path.resolve(process.cwd(), filePath));
+const getAbsolutePath = filePath => (path.isAbsolute(filePath) ? filePath
+  : path.resolve(__dirname, filePath));
 
 export const readFile = filePath => fs.readFileSync(getAbsolutePath(filePath), 'utf-8');
 
