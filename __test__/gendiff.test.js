@@ -18,7 +18,21 @@ test('generate diff from flat YAML', () => {
 test('generate diff from flat INI', () => {
   expect(getDiff(testsPath('before.ini'), testsPath('after.ini'))).toBe(result);
 });
+//
+const result2 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result-rec.txt'), 'utf-8');
+test('generate diff from flat JSON', () => {
+  expect(getDiff(testsPath('before-rec.json'), testsPath('after-rec.json'))).toBe(result2);
+});
 /*
+test('generate diff from flat YAML', () => {
+  expect(getDiff(testsPath('before-rec.yaml'), testsPath('after-rec.yaml'))).toBe(result);
+});
+
+test('generate diff from flat INI', () => {
+  expect(getDiff(testsPath('before-rec.ini'), testsPath('after-rec.ini'))).toBe(result);
+});
+
+
 const before = [
   testsPath('before.json'),
   testsPath('before.yaml'),
