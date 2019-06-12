@@ -1,5 +1,4 @@
 import program from 'commander';
-import _ from 'lodash';
 import parseFile from './parsers';
 import { version } from '../package.json';
 
@@ -16,14 +15,17 @@ const addChildren = (obj) => {
 };
 
 const renderAst = (ast) => {
-  const iter = (startAcc, astNode, spaceCount) => astNode.reduce((acc, elem) => {
-    const beforeStr = `${' '.repeat(spaceCount)}${elem.type} ${elem.key}: `;
-
-    const value = elem.children ? `${iter('{\n', elem.children, spaceCount + 2)}${' '.repeat(spaceCount)}}\n` : `${elem.value}\n`;
-    return `${acc}${beforeStr}${value}`
-  }, startAcc);
-  const result = iter('{\n', ast, 2);
-  return `${result}}`;
+  const iter = (astNode, spaceCount = 2, acc = []) => {
+    astNode.forEach((elem) => {
+      const beforeStr = `${' '.repeat(spaceCount)}${elem.type} ${elem.key}: `;
+      const value = elem.children ? `{\n${iter(elem.children, spaceCount + 2)}${' '.repeat(spaceCount + 2)}}`
+        : elem.value;
+      acc.push(`${beforeStr}${value}\n`);
+    });
+    return acc.join('');
+  };
+  const result = `{\n${iter(ast)}}`;
+  return result;
 };
 
 export const getDiff = (pathBefore, pathAfter) => {
@@ -43,19 +45,21 @@ export const getDiff = (pathBefore, pathAfter) => {
         const existAfter = Object.keys(dateAfter).includes(key);
         const beforeValue = dateBefore[key];
         const afterValue = dateAfter[key];
+        let result;
         if (existBefore && !existAfter) {
-          return [...inAcc, { key, value: beforeValue, type: '-' }];
+          result = [...inAcc, { key, value: beforeValue, type: '-' }];
         }
         if (!existBefore && existAfter) {
-          return [...inAcc, { key, value: afterValue, type: '+' }];
+          result = [...inAcc, { key, value: afterValue, type: '+' }];
         }
         if (existBefore && existAfter) {
           if (beforeValue === afterValue) {
-            return [...inAcc, { key, value: afterValue, type: ' ' }];
+            result = [...inAcc, { key, value: afterValue, type: ' ' }];
           } else {
-            return [...inAcc, { key, value: beforeValue, type: '-' }, { key, value: afterValue, type: '+' }];
+            result = [...inAcc, { key, value: beforeValue, type: '-' }, { key, value: afterValue, type: '+' }];
           }
         }
+        return result;
       }, acc);
 
     const resWhitObj = keys.filter(key => typeof dateBefore[key] === 'object'
@@ -70,25 +74,40 @@ export const getDiff = (pathBefore, pathAfter) => {
 
         if (beforeIsObject && afterIsObject) {
           if (Object.is(beforeValue, afterValue)) {
-            return [...oAcc, { key, value: '', type: ' ', children: addChildren(afterValue) }];
-          } else {
-            return [...oAcc, { key, value: '', type: ' ', children: iter([], beforeValue, afterValue) }];
+            return [...oAcc, {
+              key, value: '', type: ' ', children: addChildren(afterValue),
+            }];
           }
+          return [...oAcc, {
+            key, value: '', type: ' ', children: iter([], beforeValue, afterValue),
+          }];
         }
 
-        if (beforeIsObject && !existAfter) {
-          return [...oAcc, { key, value: '', type: '-', children: addChildren(beforeValue) }];
-        } else if (beforeIsObject && existAfter) {
-          return [...oAcc, { key, value: '', type: '-', children: addChildren(beforeValue) },
-            { key, value: afterValue, type: '+' }];
+        if (beforeIsObject) {
+          if (!existAfter) {
+            return [...oAcc, {
+              key, value: '', type: '-', children: addChildren(beforeValue),
+            }];
+          }
+          return [...oAcc, {
+            key, value: '', type: '-', children: addChildren(beforeValue),
+          },
+          {
+            key, value: afterValue, type: '+',
+          }];
         }
 
         if (!existBefore && afterIsObject) {
-          return [...oAcc, { key, value: '', type: '+', children: addChildren(afterValue) }];
-        } else if (existBefore && afterIsObject) {
-          return [...oAcc, { key, value: beforeValue, type: '-' },
-            { key, value: '', type: '+', children: addChildren(afterValue) }];
+          return [...oAcc, {
+            key, value: '', type: '+', children: addChildren(afterValue),
+          }];
         }
+        return [...oAcc, {
+          key, value: beforeValue, type: '-',
+        },
+        {
+          key, value: '', type: '+', children: addChildren(afterValue),
+        }];
       }, resultWhitoutObj);
     return resWhitObj;
   };
