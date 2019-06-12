@@ -37,7 +37,6 @@ export const getDiff = (pathBefore, pathAfter) => {
       new Set(Object.keys(dateBefore)
         .concat(Object.keys(dateAfter))),
     );
-
     const resultWhitoutObj = keys.filter(key => typeof dateBefore[key] !== 'object'
       && typeof dateAfter[key] !== 'object')
       .reduce((inAcc, key) => {
@@ -71,7 +70,6 @@ export const getDiff = (pathBefore, pathAfter) => {
         const afterIsObject = typeof dateAfter[key] === 'object';
         const beforeValue = dateBefore[key];
         const afterValue = dateAfter[key];
-
         if (beforeIsObject && afterIsObject) {
           if (Object.is(beforeValue, afterValue)) {
             return [...oAcc, {
@@ -82,7 +80,6 @@ export const getDiff = (pathBefore, pathAfter) => {
             key, value: '', type: ' ', children: iter([], beforeValue, afterValue),
           }];
         }
-
         if (beforeIsObject) {
           if (!existAfter) {
             return [...oAcc, {
@@ -96,7 +93,6 @@ export const getDiff = (pathBefore, pathAfter) => {
             key, value: afterValue, type: '+',
           }];
         }
-
         if (!existBefore && afterIsObject) {
           return [...oAcc, {
             key, value: '', type: '+', children: addChildren(afterValue),
