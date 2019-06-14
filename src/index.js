@@ -2,113 +2,149 @@ import program from 'commander';
 import parseFile from './parsers';
 import { version } from '../package.json';
 
-const addChildren = (obj) => {
-  const result = [];
-  const keys = Object.keys(obj);
-  keys.filter(key => typeof obj[key] !== 'object')
-    .forEach(key => result.push({ key, value: obj[key], type: ' ' }));
-  keys.filter(key => typeof obj[key] === 'object')
-    .forEach(key => result.push({
-      key, value: '', type: ' ', children: addChildren(obj),
-    }));
-  return result;
-};
+const nodeActions = [
+  {
+    type: 'unchanged',
+    check: (nodeBefore, nodeAfter, key) => _.has(nodeBefore, key) && _.has(nodeAfter, key)
+      && (nodeBefore[key] === nodeAfter[key] || (_.isObject(nodeBefore[key]) && _.isObject(nodeAfter[key]))),
+    // valueBefore Or Children
+    action: (node) => {
+      !_.isObject(nodeBefore[key]) ? node.valueBefore = nodeBefore[key]
+        : node.children = [];
+      return node;
+    }
+  },
+  {
+    type: 'updated',
+    check: (nodeBefore, nodeAfter, key) => _.has(nodeBefore, key) && _.has(nodeAfter, key)
+      && (nodeBefore[key] !== nodeAfter[key] || (_.isObject(nodeBefore[key]) !== _.isObject(nodeAfter[key]))),
+    // valueBefore, valueAfter
+    action: (node) => {
+      node.valueBefore = nodeBefore[key];
+      node.valueAfter = nodeAfter[key];
+      return node;
+    }
+  },
+  {
+    type: 'removed',
+    check: (nodeBefore, nodeAfter, key) => _.has(nodeBefore, key) && !_.has(nodeAfter, key),
+    // valueBefore or Stringify
+    action: (node) => {
+      node.valueBefore = nodeBefore[key];
+      return node;
+    }
+  },
+  {
+    type: 'added',
+    check: (nodeBefore, nodeAfter, key) => !_.has(nodeBefore, key) && _.has(nodeAfter, key),
+    // valueAfter or Stringify
+    action: (node) => {
+      node.valueAfter = nodeAfter[key];
+      return node;
+    }
+  }
+];
 
-const renderAst = (ast) => {
-  const iter = (astNode, spaceCount = 2, acc = []) => {
-    astNode.forEach((elem) => {
-      const beforeStr = `${' '.repeat(spaceCount)}${elem.type} ${elem.key}: `;
-      const value = elem.children ? `{\n${iter(elem.children, spaceCount + 2)}${' '.repeat(spaceCount + 2)}}`
-        : elem.value;
-      acc.push(`${beforeStr}${value}\n`);
-    });
-    return acc.join('');
-  };
-  const result = `{\n${iter(ast)}}`;
-  return result;
-};
+const getNodeActions = (nodeBefore, nodeAfter, key) => nodeActions.find(({ check }) => check(nodeBefore, nodeAfter, key));
 
-export const getDiff = (pathBefore, pathAfter) => {
+
+const buildAstThree = (pathBefore, pathAfter) => {
   const readDateBefore = parseFile(pathBefore);
   const readDateAfter = parseFile(pathAfter);
-
-  const iter = (acc, dateBefore, dateAfter) => {
+  const acc = [];
+  const iter = (dateBefore, dateAfter, pathAcc) => {
     const keys = Array.from(
       new Set(Object.keys(dateBefore)
         .concat(Object.keys(dateAfter))),
     );
-    const resultWhitoutObj = keys.filter(key => typeof dateBefore[key] !== 'object'
-      && typeof dateAfter[key] !== 'object')
-      .reduce((inAcc, key) => {
-        const existBefore = Object.keys(dateBefore).includes(key);
-        const existAfter = Object.keys(dateAfter).includes(key);
-        const beforeValue = dateBefore[key];
-        const afterValue = dateAfter[key];
-        let result;
-        if (existBefore && !existAfter) {
-          result = [...inAcc, { key, value: beforeValue, type: '-' }];
-        }
-        if (!existBefore && existAfter) {
-          result = [...inAcc, { key, value: afterValue, type: '+' }];
-        }
-        if (existBefore && existAfter) {
-          if (beforeValue === afterValue) {
-            result = [...inAcc, { key, value: afterValue, type: ' ' }];
-          } else {
-            result = [...inAcc, { key, value: beforeValue, type: '-' }, { key, value: afterValue, type: '+' }];
-          }
-        }
-        return result;
-      }, acc);
-
-    const resWhitObj = keys.filter(key => typeof dateBefore[key] === 'object'
-      || typeof dateAfter[key] === 'object')
-      .reduce((oAcc, key) => {
-        const existBefore = Object.keys(dateBefore).includes(key);
-        const existAfter = Object.keys(dateAfter).includes(key);
-        const beforeIsObject = typeof dateBefore[key] === 'object';
-        const afterIsObject = typeof dateAfter[key] === 'object';
-        const beforeValue = dateBefore[key];
-        const afterValue = dateAfter[key];
-        if (beforeIsObject && afterIsObject) {
-          if (Object.is(beforeValue, afterValue)) {
-            return [...oAcc, {
-              key, value: '', type: ' ', children: addChildren(afterValue),
-            }];
-          }
-          return [...oAcc, {
-            key, value: '', type: ' ', children: iter([], beforeValue, afterValue),
-          }];
-        }
-        if (beforeIsObject) {
-          if (!existAfter) {
-            return [...oAcc, {
-              key, value: '', type: '-', children: addChildren(beforeValue),
-            }];
-          }
-          return [...oAcc, {
-            key, value: '', type: '-', children: addChildren(beforeValue),
-          },
-          {
-            key, value: afterValue, type: '+',
-          }];
-        }
-        if (!existBefore && afterIsObject) {
-          return [...oAcc, {
-            key, value: '', type: '+', children: addChildren(afterValue),
-          }];
-        }
-        return [...oAcc, {
-          key, value: beforeValue, type: '-',
-        },
-        {
-          key, value: '', type: '+', children: addChildren(afterValue),
-        }];
-      }, resultWhitoutObj);
-    return resWhitObj;
+    keys.forEach(key => {
+      const { action, type } = getNodeActions(dateBefore, dateAfter, key);
+      const node = { key, type };
+      node.path = [...pathAcc, key];
+      const nodeWhithDate = action(node);
+      if (nodeWhithDate.children) {
+        nodeWhithDate.children = nodeWhithDate.children
+          .concat(iter(dateBefore[key], dateAfter[key], node.path));
+      }
+      acc.push(nodeWhithDate);
+    });
+    return acc;
   };
-  const ast = iter([], readDateBefore, readDateAfter);
-  return renderAst(ast);
+  return iter(readDateBefore, readDateAfter, []);
+};
+
+const stringify = (obj, level) => {
+  const indent = ' '.repeat(level * 2);
+  Object.keys(obj).reduce((acc, key) => {
+    const str = _.isObject(obj[key]) ? `${indent}  ${key}: {\n${stringify(obj[key], level + 1)}${indent}\n`
+      : `${indent}  ${key}: ${obj[key]}\n`;
+    return str;
+  });
+};
+
+const actionNodeRender = [
+  {
+    type: 'unchanged', // obj - obj, value - value
+    content: (node, level) => {
+      const indent = ' '.repeat(level * 2);
+      return _.isObject(node.valueBefore) ? `${indent}  ${node.key}: ` // + children
+        : `${indent}  ${node.key}: ${node.valueBefore}\n`
+    }
+  },
+  {
+    type: 'updated', // obj -> value, value -> obj,
+    content: (node, level) => {
+      const indent = ' '.repeat(level * 2);
+      const before = _.isObject(node.valueBefore) ? `${indent}- ${node.key}: ${stringify(node.valueBefore, level + 1)}\n`
+        : `${indent}  ${node.key}: ${node.valueAfter}\n`;
+      const after = _.isObject(node.valueAfter) ? `${indent}+ ${node.key}: ${stringify(node.valueAfter, level + 1)}\n`
+        : `${indent}  ${node.key}: ${node.valueAfter}\n`;
+      return `${before}${after}`;
+    },
+    plain: node => `Property '${node.path}' was updated. From '${node.valueBefore}' to '${node.valueAfter}'`
+  },
+  {
+    type: 'removed',
+    content: (node, level) => {
+      const indent = ' '.repeat(level * 2);
+      return _.isObject(node.valueBefore) ? `${indent}- ${node.key}: ${stringify(node.valueBefore, level + 1)}\n`
+      : `${indent}- ${node.key}: ${node.valueBefore}\n`},
+    plain: node => `Property '${node.path}' was removed`,
+  },
+  {
+    type: 'added',
+    content: (node, level) => {
+      const indent = ' '.repeat(level * 2);
+      return _.isObject(node.valueAfter) ? `${indent}+ ${node.key}: ${stringify(node.valueAfter, level + 1)}\n`
+      : `${indent}+  ${node.key}: ${node.valueAfter}\n`},
+    plain: node => `Property '${node.path}' was added`
+  }
+
+]
+
+const getActionNodeRender = node => actionNodeRender.find(({ type }) => node.type === type);
+
+const renderAstThree = (astThree) => {
+  const astAcc = '';
+  const iter = (astNode, level) => {
+    const indent = ' '.repeat(level * 2);
+    astNode.reduce((acc, elem) => {
+      const { content } = getActionNodeRender(elem);
+      const str = elem.children ? `{\n${content(elem, level)}${iter(elem.children, level + 1)}\n${indent}}\n`
+        : `${indent}${content(elem)}`;
+      return acc.concat(str);
+    },
+    astAcc,
+    );
+    return `{\n${astAcc}}`;
+  };
+  return iter(astThree, 1)
+};
+
+export default (pathBefore, pathAfter) => {
+  const result = renderAstThree(buildAstThree(pathBefore, pathAfter));
+  console.log(result);
+  return result;
 };
 
 export default program
