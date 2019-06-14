@@ -1,16 +1,21 @@
 import program from 'commander';
+import _ from 'lodash';
 import parseFile from './parsers';
 import { version } from '../package.json';
 
 const nodeActions = [
   {
     type: 'unchanged',
-    check: (nodeBefore, nodeAfter, key) => _.has(nodeBefore, key) && _.has(nodeAfter, key)
-      && (nodeBefore[key] === nodeAfter[key] || (_.isObject(nodeBefore[key]) && _.isObject(nodeAfter[key]))),
+    check: (nodeBefore, nodeAfter, key) => _.has(nodeBefore, key)
+      && _.has(nodeAfter, key) && (nodeBefore[key] === nodeAfter[key]
+      || (_.isObject(nodeBefore[key]) && _.isObject(nodeAfter[key]))),
     // valueBefore Or Children
-    action: (node) => {
-      !_.isObject(nodeBefore[key]) ? node.valueBefore = nodeBefore[key]
-        : node.children = [];
+    action: (node, key) => {
+      if (_.isObject(node[key])) {
+        node.children = [];
+      } else {
+        node.valueBefore = nodeBefore[key];
+      }
       return node;
     }
   },
@@ -19,17 +24,17 @@ const nodeActions = [
     check: (nodeBefore, nodeAfter, key) => _.has(nodeBefore, key) && _.has(nodeAfter, key)
       && (nodeBefore[key] !== nodeAfter[key] || (_.isObject(nodeBefore[key]) !== _.isObject(nodeAfter[key]))),
     // valueBefore, valueAfter
-    action: (node) => {
+    action: (node, key) => {
       node.valueBefore = nodeBefore[key];
       node.valueAfter = nodeAfter[key];
       return node;
-    }
+    },
   },
   {
     type: 'removed',
     check: (nodeBefore, nodeAfter, key) => _.has(nodeBefore, key) && !_.has(nodeAfter, key),
     // valueBefore or Stringify
-    action: (node) => {
+    action: (node, key) => {
       node.valueBefore = nodeBefore[key];
       return node;
     }
@@ -38,15 +43,15 @@ const nodeActions = [
     type: 'added',
     check: (nodeBefore, nodeAfter, key) => !_.has(nodeBefore, key) && _.has(nodeAfter, key),
     // valueAfter or Stringify
-    action: (node) => {
+    action: (node, key) => {
       node.valueAfter = nodeAfter[key];
       return node;
-    }
-  }
+    },
+  },
 ];
 
-const getNodeActions = (nodeBefore, nodeAfter, key) => nodeActions.find(({ check }) => check(nodeBefore, nodeAfter, key));
-
+const getNodeActions = (nodeBefore, nodeAfter, key) => nodeActions
+  .find(({ check }) => check(nodeBefore, nodeAfter, key));
 
 const buildAstThree = (pathBefore, pathAfter) => {
   const readDateBefore = parseFile(pathBefore);
@@ -61,7 +66,7 @@ const buildAstThree = (pathBefore, pathAfter) => {
       const { action, type } = getNodeActions(dateBefore, dateAfter, key);
       const node = { key, type };
       node.path = [...pathAcc, key];
-      const nodeWhithDate = action(node);
+      const nodeWhithDate = action(node, key);
       if (nodeWhithDate.children) {
         nodeWhithDate.children = nodeWhithDate.children
           .concat(iter(dateBefore[key], dateAfter[key], node.path));
@@ -75,11 +80,12 @@ const buildAstThree = (pathBefore, pathAfter) => {
 
 const stringify = (obj, level) => {
   const indent = ' '.repeat(level * 2);
+  const startAcc = '';
   Object.keys(obj).reduce((acc, key) => {
     const str = _.isObject(obj[key]) ? `${indent}  ${key}: {\n${stringify(obj[key], level + 1)}${indent}\n`
       : `${indent}  ${key}: ${obj[key]}\n`;
-    return str;
-  });
+    return acc.concat(str);
+  }, startAcc);
 };
 
 const actionNodeRender = [
@@ -89,7 +95,7 @@ const actionNodeRender = [
       const indent = ' '.repeat(level * 2);
       return _.isObject(node.valueBefore) ? `${indent}  ${node.key}: ` // + children
         : `${indent}  ${node.key}: ${node.valueBefore}\n`
-    }
+    },
   },
   {
     type: 'updated', // obj -> value, value -> obj,
@@ -141,7 +147,7 @@ const renderAstThree = (astThree) => {
   return iter(astThree, 1)
 };
 
-export default (pathBefore, pathAfter) => {
+export const getDiff = (pathBefore, pathAfter) => {
   const result = renderAstThree(buildAstThree(pathBefore, pathAfter));
   console.log(result);
   return result;
