@@ -23,7 +23,7 @@ const parserActions = [
   },
 ];
 
-const getParserAction = filePath => parserActions.find(({ ext }) => ext === path.extname(filePath));
+const getParserAction = filePath => parserActions.find(({ ext }) => path.extname(filePath) === ext);
 
 export default (filePath) => {
   const { parse } = getParserAction(filePath);
