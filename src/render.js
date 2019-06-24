@@ -1,67 +1,53 @@
 import _ from 'lodash';
 
-const stringify = (elem, level) => {
-  const indent = ' '.repeat(level * 2);
-  const acc = [];
-  Object.entries(elem).forEach(([key, value]) => {
-    const content = _.isObject(value) ? _.flatten(stringify(value, level + 1))
-      : value;
-    acc.push(`${indent}  ${key}: ${content}`)
-  });
+const tabSize = 4;
+const indent = level => ' '.repeat(level * tabSize);
 
-  return `{\n${acc.join('\n')}${indent}\n}`;
+const stringify = (inValue, level) => {
+  if (!_.isObject(inValue)) {
+    return inValue;
+  }
+  const indentLevel = indent(level + 1);
+  const indentBrackets = indent(level);
+  const entries = Object.entries(inValue);
+  const result = entries.map(([key, value]) => `${indentLevel}${key}: ${stringify(value, level + 1)}`);
+  return `{\n${result.join('\n')}\n${indentBrackets}}`;
 };
 
-const renderActions = [
+const renderNodeAction = [
   {
-    type: 'unchanged',
-    toStr: (obj, level) => {
-      const { key, valueBefore } = obj;
-      _.isObject(valueBefore) ? `  ${key}: ${stringify(valueBefore, level)}`
-        : `  ${key}: ${valueBefore}`;
-    }
+    type: 'removed',
+    render: ({ key, valueBefore }, level) =>
+      `${indent(level)}  - ${key}: ${stringify(valueBefore, level + 1)}`
   },
   {
     type: 'added',
-    toStr: (obj, level) => {
-      const { key, valueAfter } = obj;
-      _.isObject(valueAfter) ? `+ ${key}: ${stringify(valueAfter, level)}`
-        : `+ ${key}: ${valueAfter}`;
-    }
+    render: ({ key, valueAfter }, level) =>
+      `${indent(level)}  + ${key}: ${stringify(valueAfter, level + 1)}`
   },
   {
-    type: 'removed',
-    toStr: (obj, level) => {
-      const { key, valueBefore } = obj;
-      _.isObject(valueBefore) ? `- ${key}: ${stringify(valueBefore, level)}`
-        : `- ${key}: ${valueBefore}`;
-    }
+    type: 'nested',
+    render: ({ key, children }, level) =>
+      `${indent(level)}    ${key}: ${renderAst(children, level + 1)}`
   },
   {
     type: 'updated',
-    toStr: (obj, level) => {
-      const { key, valueBefore, valueAfter } = obj;
-      const before = _.isObject(valueBefore) ? `- ${key}: ${stringify(valueBefore, level)}`
-        : `- ${key}: ${valueBefore}`;
-      const after = _.isObject(valueAfter) ? `+ ${key}: ${stringify(valueAfter, level)}`
-        : `+ ${key}: ${valueAfter}`;
-      return [before, after];
-    }
+    render: ({ key, valueBefore, valueAfter }, level) =>
+      `${indent(level)}  - ${key}: ${stringify(valueBefore, level + 1)}\n${indent(level)}  + ${key}: ${stringify(valueAfter, level + 1)}`
+  },
+  {
+    type: 'unchanged',
+    render: ({ key, valueAfter }, level) =>
+      `${indent(level)}    ${key}: ${stringify(valueAfter, level + 1)}`
   }
 ];
 
-const getRenderActions = (obj) => renderActions.find(({ type }) => type === obj.type);
+const getRenderNodeAction = (node) => renderNodeAction.find(({ type }) => node.type === type);
 
-const render = (ast) => {
-  // we got array of node
-  const f = (elem) => {
-    const { path, children } = elem;
-    const level = path.lenght;
-    const { toStr } = getRenderActions(elem);
-    return toStr(children ? render(children) : elem, level)
-    }
-
-  const res = ast.map(f).join('\n'); //----------
-
-  return `{\n${res}\n}`
-};
+export const renderAst = (ast, level = 0) => {
+  const result = ast.reduce((acc, node)  => { // reduce
+    const { render } = getRenderNodeAction(node);
+    return [...acc, render(node, level)];
+  }, [])
+  return `{\n${result.join('\n')}\n${indent(level)}}`;
+}
