@@ -1,9 +1,10 @@
 
 import { buildAstThree } from './ast';
-import { renderDiffToJson, renderDiffToPlain } from './formatters';
+import render from './formatters';
 
-export const getDiff = (pathBefore, pathAfter) => {
-  const result = renderDiffToPlain(buildAstThree(pathBefore, pathAfter));
+// getDiff
+export default (pathBefore, pathAfter, format) => {
+  const ast = buildAstThree(pathBefore, pathAfter);
+  const result = render(ast, format);
   return result;
 };
-

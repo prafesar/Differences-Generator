@@ -1,12 +1,6 @@
 import _ from 'lodash';
 import getDate from './parsers';
 
-export const buildAstThree = (pathFileBefore, pathFileAfter) => {
-  const dateBefore = getDate(pathFileBefore);
-  const dateAfter = getDate(pathFileAfter);
-  return getDiff(dateBefore, dateAfter);
-};
-
 const getDiff = (dateBefore, dateAfter) => {
   const keys = _.union(_.keys(dateBefore), _.keys(dateAfter));
 
@@ -16,24 +10,24 @@ const getDiff = (dateBefore, dateAfter) => {
       node: key => ({
         key,
         type: 'removed',
-        valueBefore: dateBefore[key]
-      })
+        valueBefore: dateBefore[key],
+      }),
     },
     {
       check: key => !_.has(dateBefore, key),
       node: key => ({
         key,
         type: 'added',
-        valueAfter: dateAfter[key]
-      })
+        valueAfter: dateAfter[key],
+      }),
     },
     {
       check: key => _.isObject(dateBefore[key]) && _.isObject(dateAfter[key]),
       node: key => ({
         key,
         type: 'nested',
-        children: getDiff(dateBefore[key], dateAfter[key])
-      })
+        children: getDiff(dateBefore[key], dateAfter[key]),
+      }),
     },
     {
       check: key => dateBefore[key] !== dateAfter[key],
@@ -41,17 +35,17 @@ const getDiff = (dateBefore, dateAfter) => {
         key,
         type: 'updated',
         valueBefore: dateBefore[key],
-        valueAfter: dateAfter[key]
-      })
+        valueAfter: dateAfter[key],
+      }),
     },
     {
       check: key => dateBefore[key] === dateAfter[key],
       node: key => ({
         key,
         type: 'unchanged',
-        valueAfter: dateBefore[key]
-      })
-    }
+        valueAfter: dateBefore[key],
+      }),
+    },
   ];
 
   const getNodeMethod = key => nodeMethods.find(({ check }) => check(key));
@@ -60,4 +54,10 @@ const getDiff = (dateBefore, dateAfter) => {
     const { node } = getNodeMethod(key);
     return [...acc, node(key)];
   }, []);
+};
+
+export const buildAstThree = (pathFileBefore, pathFileAfter) => {
+  const dateBefore = getDate(pathFileBefore);
+  const dateAfter = getDate(pathFileAfter);
+  return getDiff(dateBefore, dateAfter);
 };
