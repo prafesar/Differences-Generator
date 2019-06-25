@@ -5,16 +5,16 @@ const indent = level => ' '.repeat(level * tabSize);
 
 const stringify = (inValue, level) => {
   if (!_.isObject(inValue)) {
-    return inValue;
+    return `"${inValue}"`;
   }
   const indentLevel = indent(level + 1);
   const indentBrackets = indent(level);
   const entries = Object.entries(inValue);
-  const result = entries.map(([key, value]) => `${indentLevel}${key}: ${stringify(value, level + 1)}`);
+  const result = entries.map(([key, value]) => `${indentLevel}"${key}": ${stringify(value, level + 1)}`);
   return `{\n${result.join('\n')}\n${indentBrackets}}`;
 };
 
-export const renderDiffToThree = (ast, level = 0) => {
+export const renderDiffToJson = (ast, level = 0) => {
   const renderNodeAction = [
     {
       type: 'removed',
@@ -26,7 +26,7 @@ export const renderDiffToThree = (ast, level = 0) => {
     },
     {
       type: 'nested',
-      render: ({ key, children }, nodeLevel) => `${indent(nodeLevel)}    ${key}: ${renderDiffToThree(children, nodeLevel + 1)}`,
+      render: ({ key, children }, nodeLevel) => `${indent(nodeLevel)}    ${key}: ${renderDiffToJson(children, nodeLevel + 1)}`,
     },
     {
       type: 'updated',
@@ -46,3 +46,5 @@ export const renderDiffToThree = (ast, level = 0) => {
   }, []);
   return `{\n${result.join('\n')}\n${indent(level)}}`;
 };
+
+export default renderDiffToJson;

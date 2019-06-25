@@ -14,7 +14,7 @@ const stringify = (inValue, level) => {
   return `{\n${result.join('\n')}\n${indentBrackets}}`;
 };
 
-export const renderDiffToThree = (ast, level = 0) => {
+const renderDiffToThree = (ast, level = 0) => {
   const renderNodeAction = [
     {
       type: 'removed',
@@ -46,3 +46,5 @@ export const renderDiffToThree = (ast, level = 0) => {
   }, []);
   return `{\n${result.join('\n')}\n${indent(level)}}`;
 };
+
+export default renderDiffToThree;

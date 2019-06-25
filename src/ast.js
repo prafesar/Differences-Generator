@@ -61,3 +61,5 @@ export const buildAstThree = (pathFileBefore, pathFileAfter) => {
   const dateAfter = getDate(pathFileAfter);
   return getDiff(dateBefore, dateAfter);
 };
+
+export default getDiff;

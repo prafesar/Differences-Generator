@@ -20,7 +20,7 @@ const renderNodeAction = [
 
 const getRenderNodeAction = node => renderNodeAction.find(({ type }) => node.type === type);
 
-export const renderDiffToPlain = (ast, pathAcc = []) => {
+const renderDiffToPlain = (ast, pathAcc = []) => {
   const result = ast
     .filter(({ type }) => type !== 'unchanged')
     .reduce((acc, node) => {
@@ -34,3 +34,5 @@ export const renderDiffToPlain = (ast, pathAcc = []) => {
     }, []);
   return result.join('\n');
 };
+
+export default renderDiffToPlain;

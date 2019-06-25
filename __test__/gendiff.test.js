@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import genDiff from '../src';
 
-const baseFolder = `../__test__/__fixtures__/`;
+const baseFolder = '../__test__/__fixtures__/';
 const getPath = name => path.resolve(__dirname, baseFolder, name);
 
 const fileList = [
@@ -11,15 +11,15 @@ const fileList = [
   ['three', 'before.yaml', 'after.yaml', 'result-three'],
   ['plain', 'before.json', 'after.json', 'result-plain'],
   ['plain', 'before.ini', 'after.ini', 'result-plain'],
-  ['plain', 'before.yaml', 'after.yaml', 'result-plain']
+  ['plain', 'before.yaml', 'after.yaml', 'result-plain'],
 ];
 
 const filePathList = fileList.map((unitList => unitList
-    .map((str, index) => index === 0 ? str : getPath(str))));
+  .map((str, index) => (index === 0 ? str : getPath(str)))));
 
 test.each(filePathList)(
   'test %#',
   (format, fileBefore, fileAfter, expected) => {
-    expect(genDiff(fileBefore, fileAfter, format)).toEqual(fs.readFileSync(expected, 'utf-8'))
-  }
+    expect(genDiff(fileBefore, fileAfter, format)).toEqual(fs.readFileSync(expected, 'utf-8'));
+  },
 );
