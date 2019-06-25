@@ -28,7 +28,7 @@ const renderNodeAction = [
   {
     type: 'nested',
     render: ({ key, children }, level) =>
-      `${indent(level)}    ${key}: ${renderAst(children, level + 1)}`
+      `${indent(level)}    ${key}: ${renderDiffToJson(children, level + 1)}`
   },
   {
     type: 'updated',
@@ -44,7 +44,7 @@ const renderNodeAction = [
 
 const getRenderNodeAction = (node) => renderNodeAction.find(({ type }) => node.type === type);
 
-export const renderAst = (ast, level = 0) => {
+export const renderDiffToJson = (ast, level = 0) => {
   const result = ast.reduce((acc, node)  => { // reduce
     const { render } = getRenderNodeAction(node);
     return [...acc, render(node, level)];
