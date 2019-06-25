@@ -1,9 +1,13 @@
-import { renderDiffToJson } from './render-json';
+import { renderDiffToThree } from './render-three';
 import { renderDiffToPlain } from './render-plain';
 
+// render for src/index
 export default (ast, format) => {
-  if (format === 'plain') {
-    return renderDiffToPlain(ast);
-  }
-  return renderDiffToJson(ast);
+  const renderActions = {
+    three: renderDiffToThree,
+    // json: renderDiffToJson,
+    plain: renderDiffToPlain
+  };
+
+  return renderActions[format](ast);
 };

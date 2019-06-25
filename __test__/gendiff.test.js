@@ -1,20 +1,25 @@
 import fs from 'fs';
 import path from 'path';
-import getDiff from '../src';
+import genDiff from '../src';
 
-// path from 'src/index.js' to tests fixtures
-const testsPath = fileName => `../__test__/__fixtures__/${fileName}`;
-// result, read using path from '__test__/gendiff.test.js'
-const result = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result-plain.txt'), 'utf-8');
+const baseFolder = `../__test__/__fixtures__/`;
+const getPath = name => path.resolve(__dirname, baseFolder, name);
 
-test('generate diff from JSON', () => {
-  expect(getDiff(testsPath('before.json'), testsPath('after.json'), 'plain')).toBe(result);
-});
+const fileList = [
+  ['three', 'before.json', 'after.json', 'result-three'],
+  ['three', 'before.ini', 'after.ini', 'result-three'],
+  ['three', 'before.yaml', 'after.yaml', 'result-three'],
+  ['plain', 'before.json', 'after.json', 'result-plain'],
+  ['plain', 'before.ini', 'after.ini', 'result-plain'],
+  ['plain', 'before.yaml', 'after.yaml', 'result-plain']
+];
 
-test('generate diff from YAML', () => {
-  expect(getDiff(testsPath('before.yaml'), testsPath('after.yaml'), 'plain')).toBe(result);
-});
+const filePathList = fileList.map((unitList => unitList
+    .map((str, index) => index === 0 ? str : getPath(str))));
 
-test('generate diff from INI', () => {
-  expect(getDiff(testsPath('before.ini'), testsPath('after.ini'), 'plain')).toBe(result);
-});
+test.each(filePathList)(
+  'test %#',
+  (format, fileBefore, fileAfter, expected) => {
+    expect(genDiff(fileBefore, fileAfter, format)).toEqual(fs.readFileSync(expected, 'utf-8'))
+  }
+);
