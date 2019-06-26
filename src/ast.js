@@ -56,10 +56,10 @@ const getDiff = (dateBefore, dateAfter) => {
   }, []);
 };
 
-export const buildAstThree = (pathFileBefore, pathFileAfter) => {
+const buildAstThree = (pathFileBefore, pathFileAfter) => {
   const dateBefore = getDate(pathFileBefore);
   const dateAfter = getDate(pathFileAfter);
   return getDiff(dateBefore, dateAfter);
 };
 
-export default getDiff;
+export default buildAstThree;

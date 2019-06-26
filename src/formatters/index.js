@@ -5,7 +5,6 @@ import renderDiffToPlain from './render-plain';
 export default (ast, format) => {
   const renderActions = {
     three: renderDiffToThree,
-    // json: renderDiffToJson,
     plain: renderDiffToPlain,
   };
 
