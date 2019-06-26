@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-const stringify = value => (_.isObject(value) ? '[complex value]' : value);
+const stringify = value => (_.isObject(value) ? '[complex value]' : `'${value}'`);
 const pathToStr = path => path.join('.');
 
 const renderNodeAction = [
