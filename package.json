@@ -38,8 +38,16 @@
     "url": "git+https://github.com/prafesar/project-lvl2-s487.git"
   },
   "keywords": [
-    "hexlet", "project", "portfolio", "ast",
-    "generator", "difference", "ini", "yaml", "json", "parser",
+    "hexlet",
+    "project",
+    "portfolio",
+    "ast",
+    "generator",
+    "difference",
+    "ini",
+    "yaml",
+    "json",
+    "parser",
     "javascript"
   ],
   "author": "prafesar",
