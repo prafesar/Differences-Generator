@@ -12,6 +12,9 @@ const fileList = [
   ['plain', 'before.json', 'after.json', 'result-plain'],
   ['plain', 'before.ini', 'after.ini', 'result-plain'],
   ['plain', 'before.yaml', 'after.yaml', 'result-plain'],
+  ['json', 'before.json', 'after.json', 'result-json'],
+  ['json', 'before.ini', 'after.ini', 'result-json'],
+  ['json', 'before.yaml', 'after.yaml', 'result-json'],
 ];
 
 const filePathList = fileList.map((unitList => unitList
