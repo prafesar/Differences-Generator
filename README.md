@@ -1,3 +1,5 @@
 [![Build Status](https://travis-ci.org/prafesar/Differences-Generator.svg?branch=master)](https://travis-ci.org/prafesar/Differences-Generator)
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/ba1d3e5fd7456c0d7726/maintainability)](https://codeclimate.com/github/prafesar/project-lvl2-s487/maintainability)
+
+[![asciicast](https://asciinema.org/a/3LZBWxRqgkzmyx7a3WOnIBZAx.svg)](https://asciinema.org/a/3LZBWxRqgkzmyx7a3WOnIBZAx)

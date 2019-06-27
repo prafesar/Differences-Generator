@@ -21,7 +21,7 @@ echo ''
 echo '------------------------------------------------------------------------------------'
 echo 'Testing Absolute Path With JSON format:'
 echo '------------------------------------------------------------------------------------'
-gendiff --format json /workspace/Differences-Generator/__test__/__fixtures__/before.ini __test__/__fixtures__/after.ini  /workspace/Differences-Generator/__test__/__fixtures__/before.ini __test__/__fixtures__/after.yaml
+gendiff --format json ~/Differences-Generator/__test__/__fixtures__/before.ini __test__/__fixtures__/after.ini  ~/Differences-Generator/__test__/__fixtures__/before.ini __test__/__fixtures__/after.yaml
 echo ''
 echo ''
 echo '------------------------------------------------------------------------------------'
