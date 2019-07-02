@@ -9,8 +9,7 @@
     "lodash": "^4.17.11"
   },
   "bin": {
-    "gendiff": "dist/bin/gendiff.js",
-    "gendiffdemo": "gendiff-demo.sh"
+    "gendiff": "dist/bin/gendiff.js"
   },
   "devDependencies": {
     "@babel/cli": "^7.4.4",
