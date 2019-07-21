@@ -6,7 +6,7 @@
     "commander": "^2.20.0",
     "ini": "^1.3.5",
     "js-yaml": "^3.13.1",
-    "lodash": "^4.17.11"
+    "lodash": "^4.17.15"
   },
   "bin": {
     "gendiff": "dist/bin/gendiff.js"
