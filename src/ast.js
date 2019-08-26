@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-const getDiff = (dateBefore, dateAfter) => {
+const buildAst = (dateBefore, dateAfter) => {
   const keys = _.union(_.keys(dateBefore), _.keys(dateAfter));
 
   const nodeMethods = [
@@ -25,7 +25,7 @@ const getDiff = (dateBefore, dateAfter) => {
       node: key => ({
         key,
         type: 'nested',
-        children: getDiff(dateBefore[key], dateAfter[key]),
+        children: buildAst(dateBefore[key], dateAfter[key]),
       }),
     },
     {
@@ -55,4 +55,4 @@ const getDiff = (dateBefore, dateAfter) => {
   }, []);
 };
 
-export default getDiff;
+export default buildAst;
