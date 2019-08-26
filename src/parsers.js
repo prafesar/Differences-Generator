@@ -10,39 +10,39 @@ const parserActions = {
   '.yaml': yaml.load,
 };
 
-const convertContent = (content) => {
-  const convertValueActions = [
-    { // true -> 1
+const normalizeDate = (content) => {
+  const normalizeValueActions = [
+    { // from string "234" to number 234
       check: v => (typeof Number(v) === 'number') && (String(Number(v)) === String(v)),
       action: v => Number(v),
     },
-    { // 1 -> true
+    { // from string "true" to boolean true
       check: v => (typeof Boolean(v) === 'boolean') && (String(Boolean(v)) === String(v)),
       action: v => Boolean(v),
     },
-    { // object
+    { // if value is object
       check: v => _.isObject(v),
-      action: v => convertContent(v),
+      action: v => normalizeDate(v),
     },
-    { // string
+    { // if value is string
       check: v => v === String(v),
       action: v => v,
     },
   ];
 
-  const convertValue = (value) => {
-    const { action } = convertValueActions.find(({ check }) => check(value));
+  const normalizeValue = (value) => {
+    const { action } = normalizeValueActions.find(({ check }) => check(value));
     return action(value);
   };
 
   return Object.entries(content)
-    .reduce((acc, [key, value]) => ({ ...acc, [key]: convertValue(value) }), {});
+    .reduce((acc, [key, value]) => ({ ...acc, [key]: normalizeValue(value) }), {});
 };
 
-// getDate for ast.js
+// get date from file
 export default (filePath) => {
   const fileContent = fs.readFileSync(filePath, 'utf-8');
   const parse = parserActions[path.extname(filePath)];
   const parsedContent = parse(fileContent);
-  return convertContent(parsedContent);
+  return normalizeDate(parsedContent);
 };
