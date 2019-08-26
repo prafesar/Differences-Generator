@@ -1,9 +1,13 @@
-import buildAstThree from './ast';
+import parseFile from './parsers';
+import buildAst from './ast';
 import render from './formatters';
 
-// gendiff
-export default (pathBefore, pathAfter, format) => {
-  const ast = buildAstThree(pathBefore, pathAfter);
-  const result = render(ast, format);
-  return result;
+const genDiff = (pathFileBefore, pathFileAfter, format) => {
+  const dateBefore = parseFile(pathFileBefore);
+  const dateAfter = parseFile(pathFileAfter);
+  const ast = buildAst(dateBefore, dateAfter);
+  return render(ast, format);
 };
+
+export default genDiff;
+export { buildAst, parseFile, render };

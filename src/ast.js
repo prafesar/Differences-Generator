@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import getDate from './parsers';
 
 const getDiff = (dateBefore, dateAfter) => {
   const keys = _.union(_.keys(dateBefore), _.keys(dateAfter));
@@ -56,10 +55,4 @@ const getDiff = (dateBefore, dateAfter) => {
   }, []);
 };
 
-const buildAstThree = (pathFileBefore, pathFileAfter) => {
-  const dateBefore = getDate(pathFileBefore);
-  const dateAfter = getDate(pathFileAfter);
-  return getDiff(dateBefore, dateAfter);
-};
-
-export default buildAstThree;
+export default getDiff;
