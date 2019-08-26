@@ -15,35 +15,48 @@ const stringify = (inValue, level) => {
 };
 
 const renderDiffToThree = (ast, level = 0) => {
+  function renderLeafNode(levl, mark, key, value) {
+    return `${indent(levl)}  ${mark} ${key}: ${stringify(value, levl + 1)}`;
+  }
+
+  function renderThreeNode(levl, key, children) {
+    return `${indent(levl)}    ${key}: ${renderDiffToThree(children, levl + 1)}`;
+  }
+
   const renderNodeAction = [
     {
       type: 'removed',
-      render: ({ key, valueBefore }, nodeLevel) => `${indent(nodeLevel)}  - ${key}: ${stringify(valueBefore, nodeLevel + 1)}`,
+      action: ({ key, valueBefore }, nodeLevel) => renderLeafNode(nodeLevel, '-', key, valueBefore),
     },
     {
       type: 'added',
-      render: ({ key, valueAfter }, nodeLevel) => `${indent(nodeLevel)}  + ${key}: ${stringify(valueAfter, nodeLevel + 1)}`,
+      action: ({ key, valueAfter }, nodeLevel) => renderLeafNode(nodeLevel, '+', key, valueAfter),
     },
     {
       type: 'nested',
-      render: ({ key, children }, nodeLevel) => `${indent(nodeLevel)}    ${key}: ${renderDiffToThree(children, nodeLevel + 1)}`,
+      action: ({ key, children }, nodeLevel) => renderThreeNode(nodeLevel, key, children),
     },
     {
       type: 'updated',
-      render: ({ key, valueBefore, valueAfter }, nodeLevel) => `${indent(nodeLevel)}  - ${key}: ${stringify(valueBefore, nodeLevel + 1)}\n${indent(nodeLevel)}  + ${key}: ${stringify(valueAfter, nodeLevel + 1)}`,
+      action: ({ key, valueBefore, valueAfter }, nodeLevel) => {
+        const before = renderLeafNode(nodeLevel, '-', key, valueBefore);
+        const after = renderLeafNode(nodeLevel, '+', key, valueAfter);
+        return `${before}\n${after}`;
+      },
     },
     {
       type: 'unchanged',
-      render: ({ key, valueAfter }, nodeLevel) => `${indent(nodeLevel)}    ${key}: ${stringify(valueAfter, nodeLevel + 1)}`,
+      action: ({ key, valueAfter }, nodeLevel) => renderLeafNode(nodeLevel, ' ', key, valueAfter),
     },
   ];
 
   const getRenderNodeAction = node => renderNodeAction.find(({ type }) => node.type === type);
 
   const result = ast.reduce((acc, node) => { // reduce
-    const { render } = getRenderNodeAction(node);
-    return [...acc, render(node, level)];
+    const { action } = getRenderNodeAction(node);
+    return [...acc, action(node, level)];
   }, []);
+
   return `{\n${result.join('\n')}\n${indent(level)}}`;
 };
 
