@@ -7,42 +7,31 @@ const buildAst = (dateBefore, dateAfter) => {
     {
       check: key => !_.has(dateAfter, key),
       node: key => ({
-        key,
-        type: 'removed',
-        valueBefore: dateBefore[key],
+        key, type: 'removed', valueBefore: dateBefore[key],
       }),
     },
     {
       check: key => !_.has(dateBefore, key),
       node: key => ({
-        key,
-        type: 'added',
-        valueAfter: dateAfter[key],
+        key, type: 'added', valueAfter: dateAfter[key],
       }),
     },
     {
       check: key => _.isObject(dateBefore[key]) && _.isObject(dateAfter[key]),
       node: key => ({
-        key,
-        type: 'nested',
-        children: buildAst(dateBefore[key], dateAfter[key]),
+        key, type: 'nested', children: buildAst(dateBefore[key], dateAfter[key]),
       }),
     },
     {
       check: key => dateBefore[key] !== dateAfter[key],
       node: key => ({
-        key,
-        type: 'updated',
-        valueBefore: dateBefore[key],
-        valueAfter: dateAfter[key],
+        key, type: 'updated', valueBefore: dateBefore[key], valueAfter: dateAfter[key],
       }),
     },
     {
       check: key => dateBefore[key] === dateAfter[key],
       node: key => ({
-        key,
-        type: 'unchanged',
-        valueAfter: dateBefore[key],
+        key, type: 'unchanged', valueAfter: dateBefore[key],
       }),
     },
   ];
