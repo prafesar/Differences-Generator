@@ -17,12 +17,15 @@ const fileList = [
   ['json', 'before.yaml', 'after.yaml', 'result-json'],
 ];
 
-const filePathList = fileList.map((unitList => unitList
-  .map((str, index) => (index === 0 ? str : getPath(str)))));
-
-test.each(filePathList)(
+test.each(fileList)(
   'test %#',
-  (format, fileBefore, fileAfter, expected) => {
-    expect(genDiff(fileBefore, fileAfter, format)).toEqual(fs.readFileSync(expected, 'utf-8'));
+  (format, fileNameBefore, fileNameAfter, fileNameResult) => {
+    const filePathBefore = getPath(fileNameBefore);
+    const filePathAfter = getPath(fileNameAfter);
+    const filePathResult = getPath(fileNameResult);
+
+    const result = genDiff(filePathBefore, filePathAfter, format);
+    const expected = fs.readFileSync(filePathResult, 'utf-8');
+    expect(result).toEqual(expected);
   },
 );
