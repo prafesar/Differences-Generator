@@ -9,12 +9,13 @@ const parseActions = {
   '.yaml': yaml.load,
 };
 
-const getParseAction = filePath => parseActions[path.extname(filePath)];
-
-const parseDataFromFile = (filePath) => {
+const getData = (filePath) => {
   const content = fs.readFileSync(filePath, 'utf-8');
-  const parse = getParseAction(filePath);
-  return parse(content);
+  const ext = path.extname(filePath);
+  return { content, ext };
 };
 
-export default parseDataFromFile;
+export default (filePath) => {
+  const { content, ext } = getData(filePath);
+  return parseActions[ext](content);
+};
