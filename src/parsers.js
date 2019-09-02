@@ -15,7 +15,9 @@ const getData = (filePath) => {
   return { content, ext };
 };
 
+const parseData = (content, ext) => parseActions[ext](content);
+
 export default (filePath) => {
   const { content, ext } = getData(filePath);
-  return parseActions[ext](content);
+  return parseData(content, ext);
 };
