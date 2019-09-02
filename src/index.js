@@ -10,4 +10,3 @@ const genDiff = (pathFileBefore, pathFileAfter, format) => {
 };
 
 export default genDiff;
-export { buildAst, parseFile, render };
