@@ -6,9 +6,9 @@ const baseFolder = '../__tests__/__fixtures__/';
 const getPath = name => path.resolve(__dirname, baseFolder, name);
 
 const fileList = [
-  ['three', 'before.json', 'after.json', 'result-three'],
-  ['three', 'before.ini', 'after.ini', 'result-three'],
-  ['three', 'before.yaml', 'after.yaml', 'result-three'],
+  ['tree', 'before.json', 'after.json', 'result-tree'],
+  ['tree', 'before.ini', 'after.ini', 'result-tree'],
+  ['tree', 'before.yaml', 'after.yaml', 'result-tree'],
   ['plain', 'before.json', 'after.json', 'result-plain'],
   ['plain', 'before.ini', 'after.ini', 'result-plain'],
   ['plain', 'before.yaml', 'after.yaml', 'result-plain'],
