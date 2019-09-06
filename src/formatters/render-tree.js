@@ -14,14 +14,14 @@ const stringify = (inValue, level) => {
   return `{\n${result.join('\n')}\n${indentBrackets}}`;
 };
 
-const renderDiffToThree = (ast, level = 0) => {
+const renderDiffToTree = (ast, level = 0) => {
   const renderLeafNode = (levl, mark, key, value) => `${indent(levl)}  ${mark} ${key}: ${stringify(value, levl + 1)}`;
-  const renderThreeNode = (levl, key, children) => `${indent(levl)}    ${key}: ${renderDiffToThree(children, levl + 1)}`;
+  const renderTreeNode = (levl, key, children) => `${indent(levl)}    ${key}: ${renderDiffToTree(children, levl + 1)}`;
 
   const renderAction = {
     removed: ({ key, valueBefore }, nodeLevel) => renderLeafNode(nodeLevel, '-', key, valueBefore),
     added: ({ key, valueAfter }, nodeLevel) => renderLeafNode(nodeLevel, '+', key, valueAfter),
-    nested: ({ key, children }, nodeLevel) => renderThreeNode(nodeLevel, key, children),
+    nested: ({ key, children }, nodeLevel) => renderTreeNode(nodeLevel, key, children),
     updated: ({ key, valueBefore, valueAfter }, nodeLevel) => {
       const before = renderLeafNode(nodeLevel, '-', key, valueBefore);
       const after = renderLeafNode(nodeLevel, '+', key, valueAfter);
@@ -38,4 +38,4 @@ const renderDiffToThree = (ast, level = 0) => {
   return `{\n${result.join('\n')}\n${indent(level)}}`;
 };
 
-export default renderDiffToThree;
+export default renderDiffToTree;
