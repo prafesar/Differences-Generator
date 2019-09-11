@@ -19,16 +19,15 @@ const renderDiffToPlain = (ast, pathAcc = []) => {
     unchanged: () => null,
   };
 
-  const result = ast
+  return ast
     .map((node) => {
       const { key, type } = node;
       const path = [...pathAcc, key];
       const render = renderNodeAction[type];
       return render(path, node);
     })
-    .filter(elem => elem !== null);
-
-  return result.join('\n');
+    .filter(elem => elem !== null)
+    .join('\n');
 };
 
 export default renderDiffToPlain;
