@@ -7,4 +7,4 @@ const parseActions = {
   '.yaml': yaml.load,
 };
 
-export default ({ content, ext }) => parseActions[ext](content);
+export default (content, ext) => parseActions[ext](content);

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import parseFile from './parsers';
+import parseData from './parsers';
 import buildAst from './ast';
 import render from './formatters';
 
@@ -14,8 +14,8 @@ const genDiff = (pathFileBefore, pathFileAfter, format) => {
   const dataBefore = getData(pathFileBefore);
   const dataAfter = getData(pathFileAfter);
 
-  const parsedDataBefore = parseFile(dataBefore);
-  const parsedDataAfter = parseFile(dataAfter);
+  const parsedDataBefore = parseData(dataBefore.content, dataBefore.ext);
+  const parsedDataAfter = parseData(dataAfter.content, dataAfter.ext);
 
   const ast = buildAst(parsedDataBefore, parsedDataAfter);
   return render(ast, format);
