@@ -25,15 +25,13 @@ const renderDiffToTree = (ast, level = 0) => {
     updated: ({ key, valueBefore, valueAfter }, nodeLevel) => {
       const before = renderLeafNode(nodeLevel, '-', key, valueBefore);
       const after = renderLeafNode(nodeLevel, '+', key, valueAfter);
-      return `${before}\n${after}`;
+      return [before, after];
     },
     unchanged: ({ key, valueAfter }, nodeLevel) => renderLeafNode(nodeLevel, ' ', key, valueAfter),
   };
 
-  const result = ast.reduce((acc, node) => {
-    const resultNode = renderAction[node.type](node, level);
-    return [...acc, resultNode];
-  }, []);
+  const result = _.flatten(ast
+    .map(node => renderAction[node.type](node, level)));
 
   return `{\n${result.join('\n')}\n${indent(level)}}`;
 };
