@@ -16,17 +16,17 @@ const renderDiffToPlain = (ast, pathAcc = []) => {
     added: (path, { valueAfter }) => `Property '${pathToStr(path)}' was added whith value: ${stringify(valueAfter)}`,
     updated: (path, { valueBefore, valueAfter }) => `Property '${pathToStr(path)}' was updated. From ${stringify(valueBefore)} to ${stringify(valueAfter)}`,
     nested: (path, { children }) => renderDiffToPlain(children, path),
-    unchanged: () => '',
+    unchanged: () => null,
   };
 
   const result = ast
-    .reduce((acc, node) => {
+    .map((node) => {
       const { key, type } = node;
       const path = [...pathAcc, key];
       const render = renderNodeAction[type];
-      return [...acc, render(path, node)];
-    }, [])
-    .filter(elem => elem !== '');
+      return render(path, node);
+    })
+    .filter(elem => elem !== null);
 
   return result.join('\n');
 };
