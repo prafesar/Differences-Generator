@@ -5,24 +5,24 @@ import genDiff from '../src';
 const baseFolder = '../__tests__/__fixtures__/';
 const getPath = name => path.resolve(__dirname, baseFolder, name);
 
-const fileList = [
-  ['tree', 'before.json', 'after.json', 'result-tree'],
-  ['tree', 'before.ini', 'after.ini', 'result-tree'],
-  ['tree', 'before.yaml', 'after.yaml', 'result-tree'],
-  ['plain', 'before.json', 'after.json', 'result-plain'],
-  ['plain', 'before.ini', 'after.ini', 'result-plain'],
-  ['plain', 'before.yaml', 'after.yaml', 'result-plain'],
-  ['json', 'before.json', 'after.json', 'result-json'],
-  ['json', 'before.ini', 'after.ini', 'result-json'],
-  ['json', 'before.yaml', 'after.yaml', 'result-json'],
+const testData = [
+  ['tree', 'json'],
+  ['tree', 'ini'],
+  ['tree', 'yaml'],
+  ['plain', 'json'],
+  ['plain', 'ini'],
+  ['plain', 'yaml'],
+  ['json', 'json'],
+  ['json', 'ini'],
+  ['json', 'yaml'],
 ];
 
-test.each(fileList)(
+test.each(testData)(
   'test %#',
-  (format, fileNameBefore, fileNameAfter, fileNameResult) => {
-    const filePathBefore = getPath(fileNameBefore);
-    const filePathAfter = getPath(fileNameAfter);
-    const filePathResult = getPath(fileNameResult);
+  (format, dataType) => {
+    const filePathBefore = getPath(`before.${dataType}`);
+    const filePathAfter = getPath(`after.${dataType}`);
+    const filePathResult = getPath(`result-${format}`);
 
     const result = genDiff(filePathBefore, filePathAfter, format);
     const expected = fs.readFileSync(filePathResult, 'utf-8');
