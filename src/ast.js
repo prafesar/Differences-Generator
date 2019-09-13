@@ -38,10 +38,10 @@ const buildAst = (dateBefore, dateAfter) => {
 
   const getNodeMethod = key => nodeMethods.find(({ check }) => check(key));
 
-  return keys.reduce((acc, key) => {
+  return keys.map((key) => {
     const { node } = getNodeMethod(key);
-    return [...acc, node(key)];
-  }, []);
+    return node(key);
+  });
 };
 
 export default buildAst;
