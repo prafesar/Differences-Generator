@@ -7,4 +7,4 @@ const renderActions = {
   json: JSON.stringify,
 };
 
-export default (ast, format) => renderActions[format || 'tree'](ast);
+export default (ast, format = 'tree') => renderActions[format](ast);
